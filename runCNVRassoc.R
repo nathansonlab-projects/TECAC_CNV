@@ -5,9 +5,11 @@ library(rtracklayer)
 library(Homo.sapiens)
 library(parallel)
 library(pbapply)
+library(dplyr)
+library(data.table)
+library(qqman)
 
-
-
+source("~/TECAC_CNV/call_cnvr2.R")
 
 
 # ===================================================================================================== #
@@ -121,14 +123,16 @@ createDesignMatrix <- function(cnvr.name, cnvr, dat, subject.names)
 
 # filter by amplification/deletion before running the script
 args = commandArgs(trailingOnly =  TRUE)
-if( length(args) < 4 )
+if( length(args) < 6 )
 {
   print("USAGE:: ")
-  print("runCNVRAssoc.R RAWCNVFILE IDPREFIX MANPLOTNAME RESNAME")
+  print("runCNVRAssoc.R RAWCNVFILE IDPREFIX OUTDIR MANPLOTNAME RESNAME")
   print("RAWCNVFILE = the .rawcnv file to be used")
   print("IDPREFIX = the prefix before each subject id in the raw CNV file")
+  print("OUTDIR = output directory")
   print("MANPLOTNAME = filename for the manhattan plot")
   print("RESNAME = filename for the results file")
+  print("DUPDEL = run only on duplications or deletions (TRUE) or all data together (FALSE)")
   print("")
   print("if cnv_clean returns an error, run prepRawCNV.sh on it first")
   stop()
@@ -136,8 +140,10 @@ if( length(args) < 4 )
 
 RAWCNVFILE  = args[1]
 IDPREFIX    = args[2]
-MANPLOTNAME = args[3]
-RESNAME     = args[4]
+OUTDIR      = args[3]
+MANPLOTNAME = args[4]
+RESNAME     = args[5]
+DUPDEL      = args[6]
 
 cnv.dat <- cnv_clean(penncnv  = RAWCNVFILE,
                      penn_id_sep = IDPREFIX)
@@ -165,9 +171,18 @@ if( all(pheno$PHENO %in% c(1,2)))
 
 
 # convert CNVs to CNVRs
-cnvr <- call_cnvr(clean_cnv = "cnv_clean/penncnv_clean.cnv",
-          chr_set = 22,
-          folder = "call_cnvr")
+if( DUPDEL == TRUE )
+{
+  cnvr <- call_cnvr2(clean_cnv = "cnv_clean/penncnv_clean.cnv",
+                     chr_set = 22,
+                     folder = OUTDIR)
+} else
+{
+  cnvr <- call_cnvr(clean_cnv = "cnv_clean/penncnv_clean.cnv",
+                     chr_set = 22,
+                     folder = OUTDIR)
+}
+
 
 # setup the design matrix
 # this is pretty fast, dont need to  paralellize
@@ -197,6 +212,10 @@ out$Chr <- cnvr$Chr
 out$Start <- cnvr$Start
 out$End <- cnvr$End
 
+if( substr(MANPLOTNAME, nchar(MANPLOTNAME) - 2, nchar(MANPLOTNAME)) != "png" )
+{
+  MANPLOTNAME <- paste0( MANPLOTNAME, ".png")
+}
 png(MANPLOTNAME, width = 800, height = 500)
 manhattan( out, chr = "Chr", bp = "Start", p = "p", snp = "CNVR", logp = TRUE)
 dev.off()
