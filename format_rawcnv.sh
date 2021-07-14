@@ -21,6 +21,6 @@ then
 fi
 
 
-FNAME-$(basename $RAWCNV .rawcnv)
+FNAME=$(basename $RAWCNV .rawcnv)
 
 mv tmp ${FNAME}_fix.rawcnv
