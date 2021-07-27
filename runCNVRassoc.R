@@ -9,6 +9,7 @@ library(dplyr)
 library(data.table)
 library(qqman)
 
+# modified version of call_cnvr that accomodates dup/del separately
 source("~/TECAC_CNV/call_cnvr2.R")
 
 
@@ -75,12 +76,22 @@ getCNVRAssoc <- function(CNVR.name, M, pheno)
 
 # ------------------------------------- createDesignMatrix -------------------------------------------- #
 createDesignMatrix <- function(cnvr.name, cnvr, dat, subject.names)
+# create the CNVR design matrix; intended to  be used with apply
+# input:
+#   cnvr.name (string), name of the CNVR of interest (eg 'CNVR_101')
+#   cnvr (data.frame), data.frame of cnvr regions
+#   dat (data.frame), data.frame of cnv regions and values
+#   subject.names (string), the vector of  unique subject IDs
+#
+# output:
+#   out (data.frame), matrix of CNV_values mapped to CNVR
 {
   
   CNVR <- cnvr[ cnvr$CNVR_ID == cnvr.name, ]
   
   chr <- dat[ dat$Chr == CNVR[["Chr"]], ]
   
+  # map  cnvs to cnvrs
   cnvr.range <- IRanges( as.integer(CNVR[["Start"]]), as.integer(CNVR[["End"]]))
   sub.range <- IRanges(chr$Start, chr$End)
   ind <- findOverlaps(sub.range, cnvr.range, type = "within")
@@ -126,7 +137,7 @@ args = commandArgs(trailingOnly =  TRUE)
 if( length(args) < 6 )
 {
   print("USAGE:: ")
-  print("runCNVRAssoc.R RAWCNVFILE IDPREFIX OUTDIR MANPLOTNAME RESNAME")
+  print("runCNVRAssoc.R RAWCNVFILE IDPREFIX OUTDIR MANPLOTNAME RESNAME DUPDEL")
   print("RAWCNVFILE = the .rawcnv file to be used")
   print("IDPREFIX = the prefix before each subject id in the raw CNV file")
   print("OUTDIR = output directory")
@@ -170,7 +181,8 @@ if( all(pheno$PHENO %in% c(1,2)))
 # --
 
 
-# convert CNVs to CNVRs
+# convert CNVs to CNVRs; if desired output is only duplication or deletion,
+# use a modified version call_cnvr
 if( DUPDEL == TRUE )
 {
   cnvr <- call_cnvr2(clean_cnv = "cnv_clean/penncnv_clean.cnv",
