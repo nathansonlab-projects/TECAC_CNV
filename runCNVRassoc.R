@@ -236,7 +236,7 @@ dev.off()
 call_gene(refgene = "refgene/Human_hg19.txt",
           interval =  "call_cnvr/cnvr.txt",
           clean_cnv = "cnv_clean/penncnv_clean.cnv",
-          folder = "call_gene")
+          folder = OUTDIR)
 
 # another way of doing the above
 g <- GRanges(seqnames = paste0("chr", out$Chr), ranges = IRanges(start = out$Start, end = out$End))
@@ -249,9 +249,9 @@ symInCnv = splitByOverlap(gns, g, "SYMBOL")
 # merge association statistics with CNVR data
 out2 <- merge(cnvr, out, by.x = 'CNVR_ID', by.y  = 'CNVR')
 
-sig.res <- out2[ which(out2$p < 1e-05), ]
+#sig.res <- out2[ which(out2$p < 1e-05), ]
 
-write.table(sig.res, RESNAME, col.names = TRUE, row.names = F, quote = F)
+write.table(out2, RESNAME, col.names = TRUE, row.names = F, quote = F)
 
 # ===================================================================================================== #
 # ===================================================================================================== #

@@ -11,8 +11,8 @@ library(ggplot2)
 # ----------------------------- plotGenesInCNVR ---------------------------------- #
 plotGenesInCNVR <- function(cnvr.id, cnvr.dat, annot.dat)
 #  input: cnvr.id (string), id of the CNVR, e.g "CNVR_190"
-#         cnvr.dat (data.frame), df of CNVR information (chr and start/end)
-#         annot.dat (data.frame), from the interval_annotation file created by HandyCNV
+#         cnvr.dat (data.frame), df of CNVR information (chr and start/end); the output of plotGeneInCNVR
+#         annot.dat (data.frame), from the interval_annotation file created by HandyCNV; the output of call_gene
 #
 #  output: p1  (ggplot object), a plot of the CNVR and overlapping genes
 
@@ -26,8 +26,16 @@ plotGenesInCNVR <- function(cnvr.id, cnvr.dat, annot.dat)
   
   plot.label <- paste0( "chr", cnvr.dat$chr, ":", cnvr.dat$start, "-", cnvr.dat$end)
   
+  # add a check to make sure  chrs match
   gene.dat <- annot.dat[ annot.dat$ID == cnvr.dat$id, ]
   gene.dat <- gene.dat[ !duplicated(gene.dat$name2), ]
+  
+  if( cnvr.dat$chr != unique(gene.dat$Chr) )
+  {
+    print(paste0("cnvr.dat is on chr", cnvr.dat$chr, " but gene data is mapped to chr", gene.dat$Chr[1], "."))
+    stop("are you using the correct CNVR_ID?")
+  }
+  
   
   df <- data.frame( start = gene.dat$Start, end = gene.dat$End, name = gene.dat$name2)
   df$position <- seq(1:length(df$start)) + 1
