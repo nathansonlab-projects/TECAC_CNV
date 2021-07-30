@@ -248,6 +248,10 @@ symInCnv = splitByOverlap(gns, g, "SYMBOL")
 
 # merge association statistics with CNVR data
 out2 <- merge(cnvr, out, by.x = 'CNVR_ID', by.y  = 'CNVR')
+out2 <- out2[,-c(14:16)]
+colnames(out2)[which(colnames(out2) == "Chr.x")] <- "Chr"
+colnames(out2)[which(colnames(out2) == "Start.x")] <- "Start"
+colnames(out2)[which(colnames(out2) == "End.x")] <- "End"
 
 #sig.res <- out2[ which(out2$p < 1e-05), ]
 

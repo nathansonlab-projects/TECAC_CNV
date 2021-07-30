@@ -71,7 +71,7 @@ call_cnvr2 <- function (clean_cnv, roh = NULL, chr_set = 29, folder = "UMD")
     for (i in 1:nrow(cnvr_type2)) 
     {
       
-      if( all(c("1","2")  %in% colnames(cnvr_type2)))
+      if( all(c("0","1")  %in% colnames(cnvr_type2)))
       {
         
         cnvr_type2$Type[i] <- "Loss"
