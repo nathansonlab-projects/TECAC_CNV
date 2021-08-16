@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Run penncnv commands by specifying .pfb file, .list file and the output name. Please upload this script to the penncnv-1.0.5 folder, and run it from there.
+#The list file should containing paths to the sample signal intensity files that will be analyzed. Each line should ontain only one path.
 #After finishing the penncnv detection command, this script will combine segments in the detection results that are likely split by the detection algorithm.
 #Both the joined by snp (default) option and the joined by bp option will be used.
 #It will also run a command to generate the .qcsum file that will be used later.
