@@ -1,7 +1,7 @@
 #This script is used to read in penncnv output (.qcsum), and conduct probe
 #based QC (part1) and sample-based QC (part2)
-#Could be used for joined by BP/joined by snp rawcnv files
-#Also used to generate files for ParseCNV
+#This script also generates graphs summarizing the QC results based on call size and distributiions. Therefore it's important to specify an identifier for all graphs.
+
 
 #-------Load Library---------
 library(tidyverse)
