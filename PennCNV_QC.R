@@ -60,7 +60,7 @@ args = commandArgs(trailingOnly =  TRUE)
 if( length(args) < 5 )
 {
   print("USAGE:: ")
-  print("runCNVRAssoc.R RAWCNVFILE OUTFILE QCSUM PHENOFILE OUTNAME")
+  print("PennCNV_QC.R RAWCNVFILE OUTFILE QCSUM PHENOFILE OUTNAME")
   print("RAWCNVFILE = path of the .rawcnv file to be QC")
   print("OUTFILE = path of the filtered .rawcnv file")
   print("QCSUM = path to the .qcsum file")
