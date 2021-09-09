@@ -2,7 +2,6 @@
 This project aims at identifying germline Copy Number Variations (CNVs) asscociated with TCGT.
 
 ## Project Flow Chart ##
-![CNV_Project_Flow](https://user-images.githubusercontent.com/58447038/113348280-65ae3500-9304-11eb-966c-75169ded59f3.png)
 
 ## Processing Steps ##
 
