@@ -21,8 +21,8 @@ This project aims at identifying germline Copy Number Variations (CNVs) asscocia
 ## Tools ##
 * Shell <br />
 * **PennCNV** <br /> 
-* **GenoCN** <br />
-* **ParseCNV** <br /> 
+* **HandyCNV** <br />
+
 
 ## Supporting Files ##
 * **TECAC_CNV_SUBLIST.txt**: The file containing BID and SSID for all samples that will be retained for CNV Calling <br />
