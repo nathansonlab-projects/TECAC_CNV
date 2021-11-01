@@ -1,24 +1,15 @@
 # pluta 6/30/21
+# v1.0 9/8/21
 
-library(HandyCNV)
-library(rtracklayer)
-library(Homo.sapiens)
-library(parallel)
-library(pbapply)
-library(dplyr)
-library(data.table)
-library(qqman)
-
-# modified version of call_cnvr that accomodates dup/del separately
-source("~/TECAC_CNV/call_cnvr2.R")
-
+# run in dir:
+# /Users/johnpluta/Documents/nathansonlab/CNV/final
 
 # ===================================================================================================== #
 # ============================================= functions ============================================= #
 # ===================================================================================================== #
 
 # --------------------------------------- geneRanges -------------------------------------------------- #
-geneRanges <- function(db, column="ENTREZID")
+geneRanges <- function( db , column = "ENTREZID")
 {
     g <- genes(db, columns=column)
     col <- mcols(g)[[column]]
@@ -47,7 +38,7 @@ getCNVRAssoc <- function(CNVR.name, M, pheno)
 #        pheno (data.frame), df containing phenotype and covariate data
 # output: out, summary statistics from the association test
 {
-  if( sum(pheno$BID == rownames(M)) != dim(M)[1])
+  if( sum(pheno$SSID == M$IID) != dim(M)[1])
   {
     print("pheno/M id mismatch")
     stop("exiting")
@@ -138,7 +129,7 @@ if( length(args) < 6 )
 {
   print("USAGE:: ")
   print("runCNVRAssoc.R RAWCNVFILE IDPREFIX OUTDIR MANPLOTNAME RESNAME DUPDEL")
-  print("RAWCNVFILE = the .rawcnv file to be used")
+  print("RAWCNVFILE = the .rawcnv file to be used, that has been split into only dup or del")
   print("IDPREFIX = the prefix before each subject id in the raw CNV file")
   print("OUTDIR = output directory")
   print("MANPLOTNAME = filename for the manhattan plot")
@@ -155,6 +146,25 @@ OUTDIR      = args[3]
 MANPLOTNAME = args[4]
 RESNAME     = args[5]
 DUPDEL      = args[6]
+
+
+
+library(HandyCNV)
+library(rtracklayer)
+library(Homo.sapiens)
+library(parallel)
+library(pbapply)
+library(dplyr)
+library(data.table)
+library(qqman)
+
+# modified version of call_cnvr that accomodates dup/del separately
+source("~/TECAC_CNV/call_cnvr2.R")
+
+
+
+
+
 
 cnv.dat <- cnv_clean(penncnv  = RAWCNVFILE,
                      penn_id_sep = IDPREFIX)
@@ -198,18 +208,34 @@ if( DUPDEL == TRUE )
 
 # setup the design matrix
 # this is pretty fast, dont need to  paralellize
+# M is the matrix of CNVR x subject with cells 0 (double deletion),  1 (single deletionn),
+# 2 (no change), 3 (duplication), 4 (double duplication)
 M <- lapply(cnvr$CNVR_ID, createDesignMatrix, cnvr, cnv.dat, unique(cnv.dat$Sample_ID))
 M <- do.call(cbind.data.frame, M)
-
-rownames(M) <- unique(cnv.dat$Sample_ID)
 colnames(M) <- cnvr$CNVR_ID
+
+
+M$IID <- unique(cnv.dat$Sample_ID)
+
+
+map <- read.table("IKN_TECAC_SSID_updated.txt", header = TRUE)
+M$IID <- map$SSID[match(M$IID, map$BID)]
+
+# slight correction to match genotype data
+# M$IID[grep("C362", M$IID)]  <- "UK0000C362F"
+# M$IID[grep("C310", M$IID)]  <- "UK0000C310F"
+
+# assumes the naming convention of filename_fix.dup.rawcnv, probably should generalize this
+write.table(M, paste0(strsplit(RAWCNVFILE, "[.]")[[1]][2], "_cnvr.mat"), col.names = TRUE, row.names = FALSE, quote = FALSE)
 
 
 
 # run association testing
 cl <- parallel::makeCluster(detectCores(), setup_strategy = "sequential")
 
-out <- pblapply(colnames(M), getCNVRAssoc, M, pheno)
+# dont run  on the IID column
+k <- dim(M)[2]
+out <- pblapply(colnames(M)[1:(k-1)], getCNVRAssoc, M, pheno)
 out <- do.call(rbind.data.frame, out)
 
 stopCluster(cl)
@@ -234,7 +260,7 @@ dev.off()
 
 # maps genes to intervals
 call_gene(refgene = "refgene/Human_hg19.txt",
-          interval =  "call_cnvr/cnvr.txt",
+          interval =  paste0(OUTDIR, "/cnvr.txt"),
           clean_cnv = "cnv_clean/penncnv_clean.cnv",
           folder = OUTDIR)
 
@@ -248,7 +274,11 @@ symInCnv = splitByOverlap(gns, g, "SYMBOL")
 
 # merge association statistics with CNVR data
 out2 <- merge(cnvr, out, by.x = 'CNVR_ID', by.y  = 'CNVR')
-out2 <- out2[,-c(14:16)]
+
+# cant  select by column name? whats going on here
+out2 <- out2[,-c(16:18)]
+
+
 colnames(out2)[which(colnames(out2) == "Chr.x")] <- "Chr"
 colnames(out2)[which(colnames(out2) == "Start.x")] <- "Start"
 colnames(out2)[which(colnames(out2) == "End.x")] <- "End"
