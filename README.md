@@ -2,21 +2,26 @@
 This project aims at identifying germline Copy Number Variations (CNVs) asscociated with TCGT.
 
 ## Project Flow Chart ##
-![CNV_Project_Flow](https://user-images.githubusercontent.com/58447038/113348280-65ae3500-9304-11eb-966c-75169ded59f3.png)
 
 ## Processing Steps ##
-* **1. Run PennCNV** to generate .rawcnv files <br />
-* **2. Run format_rawcnv.sh** to format .rawcnv file for further processing <br />
-* **3. Run subsetRawcnv.sh** to split .rawcnv file into duplication and deletion files <br />
-* **4. Run runCNVRassoc.R** to run association testing and gene/cnvr mapping <br />
-* **5. Run plotGeneInCNVR.R** to visualize CNVR/gene overlap <br />
+
+# CNVR Association
+* **1. PennCNV** to generate .rawcnv files <br />
+* **2. format_rawcnv.sh** to format .rawcnv file for further processing <br />
+* **3. subsetRawcnv.sh** to split .rawcnv file into duplication and deletion files <br />
+* **4. runCNVRassoc.R** map CNVs to CNVRs; run association testing and gene/cnvr mapping <br />
+* **5. plotGeneInCNVR.R** to visualize CNVR/gene overlap <br />
 <br />
+
+# Correlation of CNV/Gene Expression
+* **1. getTCGAMatrices.R** create matrices for gene-level CNV, cpg-methylation, and gene expression for all genes of interest, from TCGA data <br />
+* **2. plotExpressionByCNV.R** create plots of log2(FPKM) adjusted for cpg methylation against CNV
 
 ## Tools ##
 * Shell <br />
 * **PennCNV** <br /> 
-* **GenoCN** <br />
-* **ParseCNV** <br /> 
+* **HandyCNV** <br />
+
 
 ## Supporting Files ##
 * **TECAC_CNV_SUBLIST.txt**: The file containing BID and SSID for all samples that will be retained for CNV Calling <br />
